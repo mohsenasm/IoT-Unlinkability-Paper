@@ -1,0 +1,26 @@
+{
+    "idf.port": "/dev/ttyUSB0",
+    "idf.flashType": "UART",
+    "idf.adapterTargetName": "esp32",
+    "files.associations": {
+        "main.h": "c",
+        "sha3.h": "c",
+        "cstddef": "c",
+        "random.h": "c",
+        "system_error": "c",
+        "ed25519.h": "c",
+        "array": "c",
+        "bitset": "c",
+        "string_view": "c",
+        "initializer_list": "c",
+        "regex": "c",
+        "rsa.h": "c",
+        "error-crypt.h": "c",
+        "kdf.h": "c",
+        "compare": "c",
+        "chrono": "c"
+    },
+    "idf.openOcdConfigs": [
+        "board/esp32-bridge.cfg"
+    ]
+}
