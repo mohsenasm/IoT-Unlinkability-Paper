@@ -3,6 +3,8 @@
 This repo is based on a template by [wolfSSL](https://github.com/wolfSSL/wolfssl/). For general information on wolfSSL examples for Espressif, see the
 [README](https://github.com/wolfSSL/wolfssl/blob/master/IDE/Espressif/ESP-IDF/README.md) file.
 
+The main code for the benchmarks can be find at [this file](./main/my_benchmark.c).
+
 ### Prerequisites
 
 It is assumed the [ESP-IDF environment](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/) has been installed.
