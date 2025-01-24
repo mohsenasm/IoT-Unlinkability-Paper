@@ -1,4 +1,4 @@
-# Usage of ProVerif
+## Usage of ProVerif
 
 Follow the instruction at the [ProVerif website](https://bblanche.gitlabpages.inria.fr/proverif/) for the installation of ProVerif version 2.05.
 
