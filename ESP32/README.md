@@ -1,6 +1,6 @@
 # ESP32 Proof-of-Concept Implementation & Benchmark
 
-This repo is based on a template by wolfSSL. For general information on wolfSSL examples for Espressif, see the
+This repo is based on a template by [wolfSSL](https://github.com/wolfSSL/wolfssl/). For general information on wolfSSL examples for Espressif, see the
 [README](https://github.com/wolfSSL/wolfssl/blob/master/IDE/Espressif/ESP-IDF/README.md) file.
 
 ### Prerequisites
