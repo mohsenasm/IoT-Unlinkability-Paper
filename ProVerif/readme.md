@@ -28,7 +28,7 @@ File `unlinkability-within-one-publishment-1.pv` (with no `knowledge` exposed)
 File `unlinkability-within-one-publishment-2.pv`
 
 + The device follows the protocol and publishes $E_{i}^{(j)}$ using three servers.
-+ The device only publishes $E_{i}^{(3)}$ using a server, but it publishes three events each time.
++ The device only publishes $E_{i}^{(3)}$ via one server; however, it publishes three events each time, using different servers, to maintain the same number of events.
 
 ## Unlinkability within one publishment in case of colluding of some servers
 
