@@ -1,0 +1,64 @@
+(* public & private keys *)
+type skey.
+type pkey.
+fun pk(skey): pkey.
+
+(* asymmetric & hybrid encryptions *)
+fun aenc(pkey, bitstring): bitstring.
+reduc forall k:skey, m:bitstring; adec(k, aenc(pk(k), m)) = m.
+fun henc(pkey, bitstring): bitstring.
+reduc forall k:skey, m:bitstring; hdec(k, henc(pk(k), m)) = m.
+
+(* sign *)
+fun sign(skey, bitstring): bitstring.
+reduc forall k:skey, m:bitstring; checksign(pk(k), sign(k,m), m) = true.
+
+(* hash & kdf *)
+fun h(bitstring): bitstring.
+fun kdf(bitstring): skey.
+
+(* breaking ... *)
+(* reduc forall a:bitstring, b:bitstring, c:bitstring; break_kdf(kdf((a, b, c))) = (a, b, c).
+reduc forall a:bitstring, b:bitstring; break_h(h((a, b))) = (a, b).
+reduc forall a:skey; break_pk(pk(a)) = (a). *)
+
+free blockchain: channel.
+
+let All(event_secret:bitstring) = 
+    new s1:bitstring;
+    new s2:bitstring;
+    new s3:bitstring;
+    new s3':bitstring;
+    new s3'':bitstring;
+    new event_number:bitstring;
+    new event_number':bitstring;
+    new event_number'':bitstring;
+    let sk_e1 = kdf((event_secret, event_number, 1)) in
+    let sk_e2 = kdf((event_secret, event_number, 2)) in
+    let sk_e3 = kdf((event_secret, event_number, 3)) in
+    let sk_e3' = kdf((event_secret, event_number', 3)) in
+    let sk_e3'' = kdf((event_secret, event_number'', 3)) in
+    let pk_e1 = pk(sk_e1) in
+    let pk_e2 = pk(sk_e2) in
+    let pk_e3 = pk(sk_e3) in
+    let pk_e3' = pk(sk_e3') in
+    let pk_e3'' = pk(sk_e3'') in
+    new ps1:bitstring; new ps2:bitstring; new ps2':bitstring; new ps3:bitstring;
+    new data:bitstring;
+    new data':bitstring;
+    new data'':bitstring;
+    let signed_m1 = sign(sk_e1, (s1, h((h((ps3, ps2')), ps1)))) in
+    let signed_m2 = sign(sk_e2, (s2, h((ps3, ps2)))) in
+    let signed_m3 = sign(sk_e3, (s3, data)) in
+    let signed_m3' = sign(sk_e3', (s3', data')) in
+    let signed_m3'' = sign(sk_e3'', (s3'', data'')) in
+    let ptv1 = h((h((ps3, ps2')), ps1)) in
+    let ptv2 = h((ps3, ps2)) in
+    out(blockchain, (choice[pk_e3', pk_e1], choice[s3', s1], choice[data', ptv1], choice[signed_m3', signed_m1]));
+    out(blockchain, (choice[pk_e3'', pk_e2], choice[s3'', s2], choice[data'', ptv2], choice[signed_m3'', signed_m2]));
+    out(blockchain, (pk_e3, s3, data, signed_m3)).
+
+process 
+    ! new event_secret:bitstring;
+    ! All(event_secret)
+    

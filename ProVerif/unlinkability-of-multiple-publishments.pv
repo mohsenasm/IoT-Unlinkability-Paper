@@ -1,0 +1,108 @@
+(* public & private keys *)
+type skey.
+type pkey.
+fun pk(skey): pkey.
+
+(* asymmetric & hybrid encryptions *)
+fun aenc(pkey, bitstring): bitstring.
+reduc forall k:skey, m:bitstring; adec(k, aenc(pk(k), m)) = m.
+fun henc(pkey, bitstring): bitstring.
+reduc forall k:skey, m:bitstring; hdec(k, henc(pk(k), m)) = m.
+
+(* sign *)
+fun sign(skey, bitstring): bitstring.
+reduc forall k:skey, m:bitstring; checksign(pk(k), sign(k,m), m) = true.
+
+(* hash & kdf *)
+fun h(bitstring): bitstring.
+fun kdf(bitstring): skey.
+
+(* breaking ... *)
+(* reduc forall a:bitstring, b:bitstring, c:bitstring; break_kdf(kdf((a, b, c))) = (a, b, c).
+reduc forall a:bitstring, b:bitstring; break_h(h((a, b))) = (a, b).
+reduc forall a:skey; break_pk(pk(a)) = (a). *)
+
+(* channels *)
+free client_to_s1: channel.
+free s1_to_client: channel.
+free s1_to_s2: channel.
+free s2_to_s1: channel.
+free s2_to_s3: channel.
+free s3_to_s2: channel.
+free blockchain: channel.
+free broadcast: channel.
+
+(* server names *)
+type servername.
+free s1: servername.
+free s2: servername.
+free s3: servername.
+
+(* events *)
+event done.
+
+(* server 1 *)
+let Server1(sk1:skey) = 
+    in(client_to_s1, p1:bitstring);
+    let (p2:bitstring, =s2, pk_e1:pkey, ps1:bitstring, signed_m:bitstring) = hdec(sk1, p1) in
+    out(s1_to_s2, p2);
+    in(s2_to_s1, pr2:bitstring);
+    let ptv1 = h((pr2, ps1)) in
+    let (=true) = checksign(pk_e1, signed_m, (s1, ptv1)) in
+    out(blockchain, (pk_e1, s1, ptv1, signed_m));
+    let pr1 = ptv1 in
+    out(s1_to_client, pr1).
+
+(* server 2 *)
+let Server2(sk2:skey) = 
+    in(s1_to_s2, p2:bitstring);
+    let (p3:bitstring, =s3, pk_e2:pkey, ps2:bitstring, ps2':bitstring, signed_m:bitstring) = hdec(sk2, p2) in
+    out(s2_to_s3, p3);
+    in(s3_to_s2, pr3:bitstring);
+    let ptv2 = h((pr3, ps2)) in
+    let (=true) = checksign(pk_e2, signed_m, (s2, ptv2)) in
+    out(blockchain, (pk_e2, s2, ptv2, signed_m));
+    let pr2 = h((pr3, ps2')) in
+    out(s2_to_s1, pr2).
+
+(* server 3 *)
+let Server3(sk3:skey) = 
+    in(s2_to_s3, p3:bitstring);
+    let (data:bitstring, pk_e3:pkey, ps3:bitstring, signed_m:bitstring) = hdec(sk3, p3) in
+    let (=true) = checksign(pk_e3, signed_m, (s3, data)) in
+    out(blockchain, (pk_e3, s3, data, signed_m));
+    let pr3 = ps3 in
+    out(s3_to_s2, pr3).
+
+(* server 3 *)
+let Client(event_secret, event_number:bitstring, pk1, pk2, pk3: pkey) = 
+    let sk_e1 = kdf((event_secret, event_number, 1)) in
+    let sk_e2 = kdf((event_secret, event_number, 2)) in
+    let sk_e3 = kdf((event_secret, event_number, 3)) in
+    let pk_e1 = pk(sk_e1) in
+    let pk_e2 = pk(sk_e2) in
+    let pk_e3 = pk(sk_e3) in
+    new ps1:bitstring; new ps2:bitstring; new ps2':bitstring; new ps3:bitstring;
+    new data:bitstring;
+    let p3 = henc(pk3, (data, pk_e3, ps3, sign(sk_e3, (s3, data)))) in
+    let p2 = henc(pk2, (p3, s3, pk_e2, ps2, ps2', sign(sk_e2, (s2, h((ps3, ps2)))))) in
+    let p1 = henc(pk1, (p2, s2, pk_e1, ps1, sign(sk_e1, (s1, h((h((ps3, ps2')), ps1)))))) in
+    out(client_to_s1, p1);
+    in(s1_to_client, pr1:bitstring);
+    let (=pr1) = h((h((ps3, ps2')), ps1)) in
+    event done.
+
+process 
+    new sk1: skey; 
+    new sk2: skey;
+    new sk3: skey;
+    let pk1 = pk(sk1) in
+    let pk2 = pk(sk2) in
+    let pk3 = pk(sk3) in
+    out(broadcast, (pk1, pk2, pk3));
+    (!Server1(sk1)) | (!Server2(sk2)) | (!Server3(sk3)) | (
+        new event_secret:bitstring;
+        ! new event_secret':bitstring;
+        ! new event_number:bitstring;
+        Client(choice[event_secret, event_secret'], event_number, pk1, pk2, pk3)
+    )
