@@ -74,7 +74,7 @@ let Server3(sk3:skey) =
     let pr3 = ps3 in
     out(s3_to_s2, pr3).
 
-(* server 3 *)
+(* client *)
 let Client(event_secret, event_number:bitstring, pk1, pk2, pk3: pkey) = 
     let sk_e1 = kdf((event_secret, event_number, 1)) in
     let sk_e2 = kdf((event_secret, event_number, 2)) in
