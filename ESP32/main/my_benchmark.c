@@ -183,7 +183,6 @@ void kdf(byte *derived, int derivedSz, const byte *pass, int passSz)
     }
 }
 
-// TODO: move free outsize of benchmark
 void aes(byte *message, byte *cipher, int size, byte *key, byte *iv) // size should be multiple of 16 bytes
 {
     Aes enc;
@@ -206,6 +205,32 @@ void aes(byte *message, byte *cipher, int size, byte *key, byte *iv) // size sho
     {
         ESP_LOGI(BTAG, "wc_AesCbcEncrypt failed %d", ret);
         ESP_LOGI(BTAG, "wc_AesCbcEncrypt failed error: %s", wc_GetErrorString(ret));
+    }
+    wc_AesFree(&enc);
+}
+
+void aes_dec(byte *message, byte *cipher, int size, byte *key, byte *iv) // size should be multiple of 16 bytes
+{
+    Aes enc;
+    int ret = 0;
+    ret = wc_AesInit(&enc, NULL, INVALID_DEVID);
+    if (ret != 0)
+    {
+        ESP_LOGI(BTAG, "wc_AesInit failed %d", ret);
+        ESP_LOGI(BTAG, "wc_AesInit failed error: %s", wc_GetErrorString(ret));
+    }
+    ret = wc_AesSetKey(&enc, key, AES_BLOCK_SIZE, iv, AES_ENCRYPTION);
+    if (ret != 0)
+    {
+        ESP_LOGI(BTAG, "wc_AesSetKey failed %d", ret);
+        ESP_LOGI(BTAG, "wc_AesSetKey failed error: %s", wc_GetErrorString(ret));
+    }
+    
+    ret = wc_AesCbcDecrypt(&enc, cipher, message, size);
+    if (ret != 0)
+    {
+        ESP_LOGI(BTAG, "wc_AesCbcDecrypt failed %d", ret);
+        ESP_LOGI(BTAG, "wc_AesCbcDecrypt failed error: %s", wc_GetErrorString(ret));
     }
     wc_AesFree(&enc);
 }
@@ -377,4 +402,51 @@ void run_benchmark(uint sizeOfData)
     free(m2SignData_bytes);
     free(m2_bytes);
     free(m1SignData_bytes);
+}
+
+void run_benchmark_decrypt_data(uint sizeOfData)
+{
+    // init
+    RNG rng;
+    wc_InitRng(&rng);
+    byte l_1_aes_key_and_iv[32+16];
+    byte l_2_aes_key_and_iv[32+16];
+    byte data[sizeOfData];
+
+    // messages
+    byte l_1_aes_encrypted_data[sizeof(data) + 16];
+    byte l_2_aes_encrypted_data[sizeof(l_1_aes_encrypted_data) + 16];
+
+    // init benchmark
+    wc_RNG_GenerateBlock(&rng, &data, sizeof(data));
+    wc_RNG_GenerateBlock(&rng, l_1_aes_key_and_iv, 32 + 16);
+    wc_RNG_GenerateBlock(&rng, l_2_aes_key_and_iv, 32 + 16);
+
+    // process on server
+    aes(data, l_1_aes_encrypted_data, sizeof(data), l_1_aes_key_and_iv, l_1_aes_key_and_iv + 32);
+    aes(l_1_aes_encrypted_data, l_2_aes_encrypted_data, sizeof(l_1_aes_encrypted_data), l_2_aes_key_and_iv, l_2_aes_key_and_iv + 32);
+    
+    ESP_LOGI(BTAG, "data size: %d bytes", sizeof(data));
+
+    // process on device
+    uint64_t processStartTime = esp_timer_get_time();
+
+    byte l_1_temp[sizeof(l_2_aes_encrypted_data) + 16];
+    aes_dec(l_2_aes_encrypted_data, l_1_temp, sizeof(l_2_aes_encrypted_data), l_2_aes_key_and_iv, l_2_aes_key_and_iv + 32);
+    byte data_after_decryption[sizeof(l_1_temp) + 16];
+    aes_dec(l_1_temp, data_after_decryption, sizeof(l_1_temp), l_1_aes_key_and_iv, l_1_aes_key_and_iv + 32);
+    
+    uint64_t processEndTime = esp_timer_get_time();
+    ESP_LOGI(BTAG, "process on device elapsed: %lluμs | start: %lluμs | end: %lluμs", 
+        processEndTime - processStartTime, processStartTime, processEndTime);
+    
+    for (size_t i = 0; i < sizeOfData; i++)
+    {
+        if (data[i] != data_after_decryption[i]) {
+            ESP_LOGI(BTAG, "compare failed: index %d | '%d' != '%d'", 
+                     i, data[i], data_after_decryption[i]);
+            break;
+        }
+    }
+    ESP_LOGI(BTAG, "compare done");
 }

@@ -53,8 +53,7 @@ void app_main(void)
 #endif
     ESP_LOGI(TAG, "\n\n\n\n\n\n\n\n===============\n");
 
-    // run_benchmark(128);
-
+    // publish data benchmark
     uint sizeOfData = 1;
     for (size_t i = 0; i < 17; i++)
     {
@@ -64,6 +63,16 @@ void app_main(void)
         vTaskDelay(1); // for watchdog
     }
     run_benchmark(100*1024);
+
+    // uncommnet to run "receive data benchmark"
+    // uint sizeOfData = 1;
+    // for (size_t i = 0; i < 11; i++)
+    // {
+    //     run_benchmark_decrypt_data(sizeOfData);
+    //     ESP_LOGI(TAG, "------------------------------");
+    //     sizeOfData = sizeOfData * 2;
+    //     vTaskDelay(1); // for watchdog
+    // }
 
     ESP_LOGI(TAG, "\n===============\n\n\n\n\n\n\n\n");
     return;
