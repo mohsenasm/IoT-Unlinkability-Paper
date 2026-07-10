@@ -101,8 +101,30 @@ process
     let pk3 = pk(sk3) in
     out(broadcast, (pk1, pk2, pk3));
     (!Server1(sk1)) | (!Server2(sk2)) | (!Server3(sk3)) | (
+        new event_number1:bitstring;
+        new event_number2:bitstring;
+        new event_number3:bitstring;
+        new event_secret_d1:bitstring;
+        new event_secret_d2:bitstring;
+        new event_secret_d3:bitstring;
+        new event_secret_d4:bitstring;
+        Client(choice[event_secret_d1, event_secret_d2], choice[event_number1, event_number1], pk1, pk2, pk3)|
+        Client(choice[event_secret_d1, event_secret_d3], choice[event_number2, event_number1], pk1, pk2, pk3)|
+        Client(choice[event_secret_d1, event_secret_d4], choice[event_number3, event_number1], pk1, pk2, pk3)
+    )
+
+(* unbounded version *)
+(* process 
+    new sk1: skey; 
+    new sk2: skey;
+    new sk3: skey;
+    let pk1 = pk(sk1) in
+    let pk2 = pk(sk2) in
+    let pk3 = pk(sk3) in
+    out(broadcast, (pk1, pk2, pk3));
+    (!Server1(sk1)) | (!Server2(sk2)) | (!Server3(sk3)) | (
         new event_secret:bitstring;
         ! new event_secret':bitstring;
         ! new event_number:bitstring;
         Client(choice[event_secret, event_secret'], event_number, pk1, pk2, pk3)
-    )
+    ) *)

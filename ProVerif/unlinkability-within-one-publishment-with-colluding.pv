@@ -26,21 +26,22 @@ free blockchain: channel.
 free broadcast: channel.
 
 let All =
+    new event_number:bitstring;
+    new s1:bitstring;
+    new s2:bitstring;
+    new s3:bitstring;
+
     new event_secretA:bitstring;
-    new event_numberA:bitstring;
-    new s1A:bitstring;
-    new s2A:bitstring;
-    new s3A:bitstring;
-    let sk_e1A = kdf((event_secretA, event_numberA, 1)) in
-    let sk_e2A = kdf((event_secretA, event_numberA, 2)) in
-    let sk_e3A = kdf((event_secretA, event_numberA, 3)) in
+    let sk_e1A = kdf((event_secretA, event_number, 1)) in
+    let sk_e2A = kdf((event_secretA, event_number, 2)) in
+    let sk_e3A = kdf((event_secretA, event_number, 3)) in
     let pk_e1A = pk(sk_e1A) in
     let pk_e2A = pk(sk_e2A) in
     let pk_e3A = pk(sk_e3A) in
     new ps1A:bitstring; new ps2A:bitstring; new ps2'A:bitstring; new ps3A:bitstring; new dataA:bitstring;
-    let signed_m1A = sign(sk_e1A, (s1A, h((h((ps3A, ps2'A)), ps1A)))) in
-    let signed_m2A = sign(sk_e2A, (s2A, h((ps3A, ps2A)))) in
-    let signed_m3A = sign(sk_e3A, (s3A, dataA)) in
+    let signed_m1A = sign(sk_e1A, (s1, h((h((ps3A, ps2'A)), ps1A)))) in
+    let signed_m2A = sign(sk_e2A, (s2, h((ps3A, ps2A)))) in
+    let signed_m3A = sign(sk_e3A, (s3, dataA)) in
     let ptv1A = h((h((ps3A, ps2'A)), ps1A)) in
     let ptv2A = h((ps3A, ps2A)) in
     let pr3A = ps3A in
@@ -48,20 +49,16 @@ let All =
     let pr1A = h((pr2A, ps1A)) in
 
     new event_secretB:bitstring;
-    new event_numberB:bitstring;
-    new s1B:bitstring;
-    new s2B:bitstring;
-    new s3B:bitstring;
-    let sk_e1B = kdf((event_secretB, event_numberB, 1)) in
-    let sk_e2B = kdf((event_secretB, event_numberB, 2)) in
-    let sk_e3B = kdf((event_secretB, event_numberB, 3)) in
+    let sk_e1B = kdf((event_secretB, event_number, 1)) in
+    let sk_e2B = kdf((event_secretB, event_number, 2)) in
+    let sk_e3B = kdf((event_secretB, event_number, 3)) in
     let pk_e1B = pk(sk_e1B) in
     let pk_e2B = pk(sk_e2B) in
     let pk_e3B = pk(sk_e3B) in
     new ps1B:bitstring; new ps2B:bitstring; new ps2'B:bitstring; new ps3B:bitstring; new dataB:bitstring;
-    let signed_m1B = sign(sk_e1B, (s1B, h((h((ps3B, ps2'B)), ps1B)))) in
-    let signed_m2B = sign(sk_e2B, (s2B, h((ps3B, ps2B)))) in
-    let signed_m3B = sign(sk_e3B, (s3B, dataB)) in
+    let signed_m1B = sign(sk_e1B, (s1, h((h((ps3B, ps2'B)), ps1B)))) in
+    let signed_m2B = sign(sk_e2B, (s2, h((ps3B, ps2B)))) in
+    let signed_m3B = sign(sk_e3B, (s3, dataB)) in
     let ptv1B = h((h((ps3B, ps2'B)), ps1B)) in
     let ptv2B = h((ps3B, ps2B)) in
     let pr3B = ps3B in
@@ -69,20 +66,16 @@ let All =
     let pr1B = h((pr2B, ps1B)) in
 
     new event_secretC:bitstring;
-    new event_numberC:bitstring;
-    new s1C:bitstring;
-    new s2C:bitstring;
-    new s3C:bitstring;
-    let sk_e1C = kdf((event_secretC, event_numberC, 1)) in
-    let sk_e2C = kdf((event_secretC, event_numberC, 2)) in
-    let sk_e3C = kdf((event_secretC, event_numberC, 3)) in
+    let sk_e1C = kdf((event_secretC, event_number, 1)) in
+    let sk_e2C = kdf((event_secretC, event_number, 2)) in
+    let sk_e3C = kdf((event_secretC, event_number, 3)) in
     let pk_e1C = pk(sk_e1C) in
     let pk_e2C = pk(sk_e2C) in
     let pk_e3C = pk(sk_e3C) in
     new ps1C:bitstring; new ps2C:bitstring; new ps2'C:bitstring; new ps3C:bitstring; new dataC:bitstring;
-    let signed_m1C = sign(sk_e1C, (s1C, h((h((ps3C, ps2'C)), ps1C)))) in
-    let signed_m2C = sign(sk_e2C, (s2C, h((ps3C, ps2C)))) in
-    let signed_m3C = sign(sk_e3C, (s3C, dataC)) in
+    let signed_m1C = sign(sk_e1C, (s1, h((h((ps3C, ps2'C)), ps1C)))) in
+    let signed_m2C = sign(sk_e2C, (s2, h((ps3C, ps2C)))) in
+    let signed_m3C = sign(sk_e3C, (s3, dataC)) in
     let ptv1C = h((h((ps3C, ps2'C)), ps1C)) in
     let ptv2C = h((ps3C, ps2C)) in
     let pr3C = ps3C in
@@ -90,20 +83,16 @@ let All =
     let pr1C = h((pr2C, ps1C)) in
 
     new event_secretD:bitstring;
-    new event_numberD:bitstring;
-    new s1D:bitstring;
-    new s2D:bitstring;
-    new s3D:bitstring;
-    let sk_e1D = kdf((event_secretD, event_numberD, 1)) in
-    let sk_e2D = kdf((event_secretD, event_numberD, 2)) in
-    let sk_e3D = kdf((event_secretD, event_numberD, 3)) in
+    let sk_e1D = kdf((event_secretD, event_number, 1)) in
+    let sk_e2D = kdf((event_secretD, event_number, 2)) in
+    let sk_e3D = kdf((event_secretD, event_number, 3)) in
     let pk_e1D = pk(sk_e1D) in
     let pk_e2D = pk(sk_e2D) in
     let pk_e3D = pk(sk_e3D) in
     new ps1D:bitstring; new ps2D:bitstring; new ps2'D:bitstring; new ps3D:bitstring; new dataD:bitstring;
-    let signed_m1D = sign(sk_e1D, (s1D, h((h((ps3D, ps2'D)), ps1D)))) in
-    let signed_m2D = sign(sk_e2D, (s2D, h((ps3D, ps2D)))) in
-    let signed_m3D = sign(sk_e3D, (s3D, dataD)) in
+    let signed_m1D = sign(sk_e1D, (s1, h((h((ps3D, ps2'D)), ps1D)))) in
+    let signed_m2D = sign(sk_e2D, (s2, h((ps3D, ps2D)))) in
+    let signed_m3D = sign(sk_e3D, (s3, dataD)) in
     let ptv1D = h((h((ps3D, ps2'D)), ps1D)) in
     let ptv2D = h((ps3D, ps2D)) in
     let pr3D = ps3D in
@@ -123,10 +112,14 @@ let All =
     out(broadcast, choice[pk_e3A, pk_e3D]);
     out(broadcast, choice[ps3A, ps3D]);
     (* blockchain *)
-    out(blockchain, (choice[pk_e1A, pk_e1B], choice[s1A, s1B], choice[ptv1A, ptv1B], choice[signed_m1A, signed_m1B]));
-    out(blockchain, (choice[pk_e2A, pk_e2C], choice[s2A, s2C], choice[ptv2A, ptv2C], choice[signed_m2A, signed_m2C]));
-    out(blockchain, (choice[pk_e3A, pk_e3D], choice[s3A, s3D], choice[dataA, dataD], choice[signed_m3A, signed_m3D])).
+    out(blockchain, (choice[pk_e1A, pk_e1B], s1, choice[ptv1A, ptv1B], choice[signed_m1A, signed_m1B]));
+    out(blockchain, (choice[pk_e2A, pk_e2C], s2, choice[ptv2A, ptv2C], choice[signed_m2A, signed_m2C]));
+    out(blockchain, (choice[pk_e3A, pk_e3D], s3, choice[dataA, dataD], choice[signed_m3A, signed_m3D])).
 
 
 process
-    ! All()
+    All()
+
+(* this also works *)
+(* process
+    ! All() *)
